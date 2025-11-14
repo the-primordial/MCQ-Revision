@@ -12,7 +12,7 @@ def load_data():
     if os.path.exists(DATA_FILE):
         return pd.read_csv(DATA_FILE)
     else:
-        return pd.DataFrame(columns=["Subject", "Chapter", "Question", "A", "B", "C", "D", "Answer"])
+        return pd.DataFrame(columns=["Subject", "Chapter", "Question", "OptionA", "OptionB", "OptionC", "OptionD", "Answer"])
 
 def save_data(df):
     df.to_csv(DATA_FILE, index=False)
@@ -36,7 +36,6 @@ if "quiz_started" not in st.session_state:
 
 st.set_page_config(page_title="Smart MCQ Builder", page_icon="🧠", layout="centered")
 
-
 # ------------------------------
 # MAIN MENU
 # ------------------------------
@@ -52,14 +51,14 @@ if st.session_state.menu == "main":
         st.rerun()
 
 # ------------------------------
-# MODIFY QUESTIONS SECTION (IMPROVED NAVIGATION)
+# MODIFY QUESTIONS SECTION
 # ------------------------------
 elif st.session_state.menu == "modify":
     st.subheader("✏️ Modify Questions")
 
     data = load_data()
 
-    # --- State tracking ---
+    # --- State memory ---
     if "selected_subject" not in st.session_state:
         st.session_state.selected_subject = None
     if "selected_chapter" not in st.session_state:
@@ -155,6 +154,7 @@ elif st.session_state.menu == "modify":
                     st.write(f"**C)** {row['OptionC']}")
                     st.write(f"**D)** {row['OptionD']}")
                     st.write(f"✅ **Correct Answer:** {row['Answer']}")
+
                     col1, col2 = st.columns([1, 1])
                     with col1:
                         if st.button(f"🗑️ Delete Q{idx+1}", key=f"del_{idx}"):
@@ -177,7 +177,8 @@ elif st.session_state.menu == "modify":
             new_B = st.text_input("Option B:", row["OptionB"])
             new_C = st.text_input("Option C:", row["OptionC"])
             new_D = st.text_input("Option D:", row["OptionD"])
-            new_ans = st.selectbox("Correct Answer:", ["A", "B", "C", "D"], index=["A","B","C","D"].index(row["Answer"]))
+            new_ans = st.selectbox("Correct Answer:", ["A", "B", "C", "D"],
+                                   index=["A", "B", "C", "D"].index(row["Answer"]))
 
             if st.button("💾 Save Changes"):
                 data.loc[idx, ["Question", "OptionA", "OptionB", "OptionC", "OptionD", "Answer"]] = [
@@ -200,126 +201,9 @@ elif st.session_state.menu == "modify":
                 st.session_state.selected_chapter = None
                 st.session_state.menu = "main"
                 st.rerun()
-# ------------------------------
-import streamlit as st
-import pandas as pd
-import os
-import random
 
 # ------------------------------
-# CONFIGURATION
-# ------------------------------
-DATA_FILE = "questions.csv"
-
-# Create CSV file if it doesn't exist
-if not os.path.exists(DATA_FILE):
-    df = pd.DataFrame(columns=["Subject", "Chapter", "Question", "OptionA", "OptionB", "OptionC", "OptionD", "Answer"])
-    df.to_csv(DATA_FILE, index=False)
-
-# Load and Save
-def load_data():
-    return pd.read_csv(DATA_FILE)
-
-def save_data(df):
-    df.to_csv(DATA_FILE, index=False)
-
-# ------------------------------
-# MAIN APP STARTS HERE
-# ------------------------------
-st.set_page_config(page_title="Study Quiz App", page_icon="📘", layout="centered")
-st.title("📘 Study Quiz App")
-
-# Initialize session state
-if "menu" not in st.session_state:
-    st.session_state.menu = "main"
-
-# ------------------------------
-# MAIN MENU
-# ------------------------------
-if st.session_state.menu == "main":
-    st.subheader("Main Menu")
-
-    if st.button("✏️ Modify Questions"):
-        st.session_state.menu = "modify"
-        st.rerun()
-
-    if st.button("🧪 Attempt Quiz"):
-        st.session_state.menu = "quiz"
-        st.rerun()
-
-# ------------------------------
-# MODIFY QUESTIONS SECTION
-# ------------------------------
-elif st.session_state.menu == "modify":
-    st.subheader("✏️ Modify Questions")
-
-    data = load_data()
-    subjects = sorted(data["Subject"].unique().tolist())
-
-    # Subject selection
-    subject = st.selectbox("Select Subject (or type new one):", ["--New Subject--"] + subjects)
-    if subject == "--New Subject--":
-        subject = st.text_input("Enter new subject name:")
-
-    if subject:
-        # Chapter selection
-        chapters = sorted(data[data["Subject"] == subject]["Chapter"].unique().tolist())
-        chapter = st.selectbox("Select Chapter (or type new one):", ["--New Chapter--"] + chapters)
-        if chapter == "--New Chapter--":
-            chapter = st.text_input("Enter new chapter name:")
-
-        if chapter:
-            st.markdown("---")
-            st.markdown("### Add New Question")
-
-            q_text = st.text_area("Question:")
-            optA = st.text_input("Option A:")
-            optB = st.text_input("Option B:")
-            optC = st.text_input("Option C:")
-            optD = st.text_input("Option D:")
-            answer = st.selectbox("Correct Answer:", ["A", "B", "C", "D"])
-
-            if st.button("➕ Add Question"):
-                if q_text.strip() and optA and optB and optC and optD:
-                    new_row = {
-                        "Subject": subject,
-                        "Chapter": chapter,
-                        "Question": q_text.strip(),
-                        "OptionA": optA.strip(),
-                        "OptionB": optB.strip(),
-                        "OptionC": optC.strip(),
-                        "OptionD": optD.strip(),
-                        "Answer": answer,
-                    }
-                    data = data._append(new_row, ignore_index=True)
-                    save_data(data)
-                    st.success("✅ Question added successfully!")
-                    st.rerun()
-                else:
-                    st.warning("Please fill in all fields.")
-
-            # Display existing questions
-            st.markdown("### Existing Questions")
-            chapter_data = data[(data["Subject"] == subject) & (data["Chapter"] == chapter)]
-            for idx, row in chapter_data.iterrows():
-                with st.expander(f"Q{idx+1}: {row['Question']}"):
-                    st.write(f"A) {row['OptionA']}")
-                    st.write(f"B) {row['OptionB']}")
-                    st.write(f"C) {row['OptionC']}")
-                    st.write(f"D) {row['OptionD']}")
-                    st.write(f"✅ Correct Answer: {row['Answer']}")
-                    if st.button(f"🗑️ Delete Q{idx+1}", key=f"del_{idx}"):
-                        data.drop(index=idx, inplace=True)
-                        save_data(data)
-                        st.warning("Question deleted.")
-                        st.rerun()
-
-    if st.button("⬅️ Back to Main Menu"):
-        st.session_state.menu = "main"
-        st.rerun()
-
-# ------------------------------
-# ATTEMPT QUIZ SECTION
+# QUIZ SECTION (FIXED OPTIONS)
 # ------------------------------
 elif st.session_state.menu == "quiz":
     st.subheader("🧪 Attempt Quiz")
@@ -352,77 +236,73 @@ elif st.session_state.menu == "quiz":
 
             if st.button("▶️ Start Quiz"):
                 selected_data = chapter_data.sample(n=num_questions).reset_index(drop=True)
-                st.session_state.chapter_data = selected_data
+                st.session_state.quiz_data = selected_data
                 st.session_state.quiz_started = True
-                st.session_state.answers = {}
                 st.session_state.current_q = 0
+                st.session_state.answers = {}
                 st.rerun()
+
         else:
             st.info("No questions available for this chapter.")
 
-        # ------------------------------------
-        # QUIZ MODE
-        # ------------------------------------
         if st.session_state.get("quiz_started", False):
-
+            quiz_data = st.session_state.quiz_data
+            total = len(quiz_data)
             q_index = st.session_state.current_q
-            row = st.session_state.chapter_data.iloc[q_index]
+            q_data = quiz_data.iloc[q_index]
 
-            st.markdown(f"### {subject} > {chapter}")
-            st.markdown(f"#### Question {q_index+1} / {len(st.session_state.chapter_data)}")
-            st.markdown(f"**{row['Question']}**")
+            # Progress
+            st.markdown(f"### 📖 {subject} > {chapter}")
+            st.write(f"**Question {q_index + 1} of {total}**")
+            st.progress((q_index + 1) / total)
 
-            # Show full options (A) text
-            options = [
-                f"A) {row['OptionA']}",
-                f"B) {row['OptionB']}",
-                f"C) {row['OptionC']}",
-                f"D) {row['OptionD']}",
-            ]
+            # Display Question
+            st.markdown(f"#### {q_data['Question']}")
 
-            # Default selected index if already answered
-            if q_index in st.session_state.answers:
-                prev_answer = st.session_state.answers[q_index]
-                prev_index = ["A", "B", "C", "D"].index(prev_answer)
-            else:
-                prev_index = None
+            # FIX FOR SHOWING FULL OPTIONS
+            option_map = {
+                "A": q_data["OptionA"],
+                "B": q_data["OptionB"],
+                "C": q_data["OptionC"],
+                "D": q_data["OptionD"]
+            }
+            labels = [f"{k}: {v}" for k, v in option_map.items()]
 
-            choice = st.radio(
-                "Choose one:",
-                options,
-                index=prev_index,
-                key=f"q_{q_index}"
+            prev_answer = st.session_state.answers.get(q_index)
+            default_index = ["A", "B", "C", "D"].index(prev_answer) if prev_answer else 0
+
+            selected_label = st.radio(
+                "Your Answer:",
+                labels,
+                index=default_index,
+                key=f"radio_{q_index}"
             )
 
-            if choice:
-                st.session_state.answers[q_index] = choice[0]  # extract letter (A/B/C/D)
+            selected_option = selected_label.split(":")[0]
+            st.session_state.answers[q_index] = selected_option
 
-            # Navigation buttons
-            col1, col2, col3 = st.columns(3)
-
+            # Navigation
+            col1, col2, col3 = st.columns([1, 2, 1])
             with col1:
-                if q_index > 0:
-                    if st.button("⬅️ Previous"):
-                        st.session_state.current_q -= 1
-                        st.rerun()
-
-            with col2:
-                if q_index < len(st.session_state.chapter_data) - 1:
-                    if st.button("Next ➡️"):
-                        st.session_state.current_q += 1
-                        st.rerun()
-
+                if st.button("⬅️ Previous", disabled=(q_index == 0)):
+                    st.session_state.current_q -= 1
+                    st.rerun()
             with col3:
-                if q_index == len(st.session_state.chapter_data) - 1:
-                    if st.button("✅ Submit Quiz"):
-                        score = 0
-                        for i, row in st.session_state.chapter_data.iterrows():
-                            if st.session_state.answers.get(i) == row["Answer"]:
-                                score += 1
-                        st.success(f"🎯 Your Score: {score}/{len(st.session_state.chapter_data)}")
-                        st.session_state.quiz_started = False
+                if st.button("➡️ Next", disabled=(q_index == total - 1)):
+                    st.session_state.current_q += 1
+                    st.rerun()
 
-        # Back button
+            # Submit (only last question)
+            if q_index == total - 1:
+                st.markdown("---")
+                if st.button("✅ Submit Quiz"):
+                    score = 0
+                    for i, row in quiz_data.iterrows():
+                        if st.session_state.answers.get(i) == row["Answer"]:
+                            score += 1
+                    st.success(f"🎯 Your Score: {score}/{total}")
+                    st.session_state.quiz_started = False
+
         if st.button("⬅️ Back to Main Menu"):
             st.session_state.menu = "main"
             st.session_state.quiz_started = False

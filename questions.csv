@@ -1,1 +1,14 @@
 Subject,Chapter,Question,OptionA,OptionB,OptionC,OptionD,Answer
+Geography,Introduction,Father of Geography,Aristotle,Eratosthenes,Polydonius,Hecataeus,D
+Geography,Introduction,Father of Physical Geography,Polydonius,Hecataeus,Aristotle,Eratosthenes,A
+Geography,Introduction,Father of Human Geography,Polydonius,Hecataeus,Freidrich Ratzel,Eratosthenes,C
+Geography,Introduction,Father of Geophysics,Polydonius,Hecataeus,Freidrich Ratzel,Eratosthenes,D
+Geography,Introduction,Which one of the following is the imaginary line connecting places of equal Air Pressure,Isotherm,isobar,Isohaline,Contour,B
+Geography,Introduction,Which one of the following is the imaginary line connecting places of equal Salinity,Isobar,Isohaline,isohyets,Isoneph,B
+Geography,Introduction,Which one of the following is the imaginary line connecting places of equal Cloud Cover,Isohaline,Isoneph,Isohyets,Isochronal,B
+Geography,Introduction,Which one of the following is the imaginary line connecting places of equal Elevation,Contour Line,Isoneph,Isohyets,Isochronal,B
+Geography,Introduction,Which one of the following is the imaginary line connecting places of equal Earthquake Sensitivity,Isohyets,Isochronal,Isosesimal,Isotherm,C
+Geography,Introduction,Which one of the following is the imaginary line connecting places of equal Traveltime,Isohyets,Isochronal,Isosesimal,Isotherm,B
+Geography,Introduction,Which one of the following is the imaginary line connecting places of equal Temperature,Isohyets,Isochronal,Isosesimal,Isotherm,D
+Geography,Introduction,Which one of the following is the imaginary line connecting places of equal Rainfall,Isohyets,Isotherm,isoneph,Hachure Line,A
+Subject,Chapter,Question,OptionA,OptionB,OptionC,OptionD,Answer
